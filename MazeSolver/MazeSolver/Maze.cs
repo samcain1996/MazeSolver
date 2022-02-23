@@ -90,13 +90,12 @@ namespace MazeSolver
                 foreach (Cell cell in row)
                 {
                     // Add each cell in a row to a line
-                    sb.Append(" ");
                     sb.Append(cell.val);
                     for (int spaceLeft = longestVal().Length - cell.val.Length; spaceLeft > 0; spaceLeft--)
                     {
-                        sb.Append(" ");
+                        sb.Append(' ');
                     }
-                    sb.Append(" ");
+                    sb.Append(' ');
                 }
                 // Divide rows with new lines
                 sb.AppendLine();
@@ -132,7 +131,7 @@ namespace MazeSolver
         // TODO: Smarter path generation algorithm
         public static bool CreatePath(ref MazeData maze)
         {
-            int pathCount = 0;
+            int pathOrder = 1;
             // Dimensions of maze
             int iSize = maze.Count;
 
@@ -157,15 +156,13 @@ namespace MazeSolver
                 { return false; }
 
                 // If any of the unvisitedNeighbors are the end then path has been made
-                if (unvisitedNeighbors.Contains(end)) 
-                { return true; }
-                //if (unvisitedNeighbors.Count == 0) 
-                //{ Console.WriteLine("wtf"); }
+                if (unvisitedNeighbors.Contains(end)) { return true; }
+
                 // Pick a random neighbor and 'move' to it
                 currentCell = unvisitedNeighbors[rand.Next(0, unvisitedNeighbors.Count)];
 
                 // Set cell to a path
-                currentCell.val = (++pathCount).ToString();
+                currentCell.val = (pathOrder++).ToString();
             }
             return true;
         }
@@ -175,9 +172,9 @@ namespace MazeSolver
         {
             List<Cell> unvisitedNeighbors = new List<Cell>();
 
-            // Add neighbors to the list if they have not been visited (do not have a val of ' ').
-            if (currentCell.x > 0 && maze[currentCell.x - 1][currentCell.y].val is "X" or "E") { unvisitedNeighbors.Add(maze[currentCell.x - 1][currentCell.y]); }
-            if (currentCell.y > 0 && maze[currentCell.x][currentCell.y - 1].val is "X" or "E") { unvisitedNeighbors.Add(maze[currentCell.x][currentCell.y - 1]); }
+            // Add neighbors to the list if they have not been visited (value of "X" or "E").
+            if (currentCell.x > 0 && maze[currentCell.x - 1][currentCell.y].val is "X" or "E")              { unvisitedNeighbors.Add(maze[currentCell.x - 1][currentCell.y]); }
+            if (currentCell.y > 0 && maze[currentCell.x][currentCell.y - 1].val is "X" or "E")              { unvisitedNeighbors.Add(maze[currentCell.x][currentCell.y - 1]); }
             if (currentCell.x < maze.Count - 1 && maze[currentCell.x + 1][currentCell.y].val is "X" or "E") { unvisitedNeighbors.Add(maze[currentCell.x + 1][currentCell.y]); }
             if (currentCell.y < maze.Count - 1 && maze[currentCell.x][currentCell.y + 1].val is "X" or "E") { unvisitedNeighbors.Add(maze[currentCell.x][currentCell.y + 1]); }
 
