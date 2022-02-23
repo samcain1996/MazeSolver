@@ -19,7 +19,8 @@ namespace MazeSolver
         // value of cell
         public string val;
 
-        enum CellType { Wall, Space, Start, End};
+        // Not yet used
+        // enum CellType { Wall, Space, Start, End};
 
         // Note: No default constructor, X and Y values are always required
         public Cell(int X, int Y) : this(X, Y, "X") { }
