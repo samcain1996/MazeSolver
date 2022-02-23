@@ -6,12 +6,17 @@ using System.Threading.Tasks;
 
 namespace MazeSolver
 {
+    // Represents a 2-D array of Cells
     using MazeData = List<List<Cell>>;
+
+    // Class so that it is passed by ref and mutable.
+    // X,Y position and a Value as a char
     class Cell
     {
         public int x, y;
         public char val;
 
+        // Note: No default constructor, X and Y values are always required
         public Cell(int X, int Y) : this(X, Y, 'X') { }
         public Cell(int X, int Y, char Val)
         {
@@ -27,18 +32,30 @@ namespace MazeSolver
             Cell c = obj as Cell;
             return x == c.x && y == c.y;
         }
+        
+        // TODO: Implement
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
+        }
     }
     internal class Maze
     {
         private MazeData m_maze;
 
+        // Construct a new Maze, size is required
         public Maze(int iSize)
         {
             m_maze = new MazeData(iSize);
+
+            // If maze generation fails ( could not find end because algorithm isn't smart ),
+            // then retry until it succeeds.
             do
             {
                 MazeGenerator.InitMaze(out m_maze, iSize);
             }while (!MazeGenerator.CreatePath(ref m_maze));
+
+            // Write the maze as a string
             Console.WriteLine(ToString());
         }
 
@@ -53,8 +70,10 @@ namespace MazeSolver
             {
                 foreach (Cell cell in row)
                 {
+                    // Add each cell in a row to a line
                     sb.Append(cell.val);
                 }
+                // Divide rows with new lines
                 sb.AppendLine();
             }
             return sb.ToString();
