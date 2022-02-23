@@ -11,14 +11,19 @@ namespace MazeSolver
 
     // Class so that it is passed by ref and mutable.
     // X,Y position and a Value as a char
-    class Cell
+    internal class Cell
     {
+        // x and y position of cell in maze
         public int x, y;
-        public char val;
+
+        // value of cell
+        public string val;
+
+        enum CellType { Wall, Space, Start, End};
 
         // Note: No default constructor, X and Y values are always required
-        public Cell(int X, int Y) : this(X, Y, 'X') { }
-        public Cell(int X, int Y, char Val)
+        public Cell(int X, int Y) : this(X, Y, "X") { }
+        public Cell(int X, int Y, string Val)
         {
             x = X;
             y = Y;
@@ -39,7 +44,7 @@ namespace MazeSolver
             throw new NotImplementedException();
         }
     }
-    internal class Maze
+    class Maze
     {
         private MazeData m_maze;
 
@@ -59,19 +64,39 @@ namespace MazeSolver
             Console.WriteLine(ToString());
         }
 
+        private string longestVal() 
+        {
+            string longestVal = "";
+            foreach (List<Cell> row in m_maze)
+            {
+                foreach (Cell cell in row)
+                {
+                    if (cell.val.Length > longestVal.Length) { longestVal = cell.val; }
+                }
+            }
+            return longestVal;
+        }
+
         // Return the maze list.
         public MazeData GetMaze { get { return m_maze; } }
 
         // Convert the maze to a string
         public override string ToString()
         {
+            int cellSize = longestVal().Length;
             StringBuilder sb = new StringBuilder();
             foreach (List<Cell> row in m_maze)
             {
                 foreach (Cell cell in row)
                 {
                     // Add each cell in a row to a line
+                    sb.Append(" ");
                     sb.Append(cell.val);
+                    for (int spaceLeft = longestVal().Length - cell.val.Length; spaceLeft > 0; spaceLeft--)
+                    {
+                        sb.Append(" ");
+                    }
+                    sb.Append(" ");
                 }
                 // Divide rows with new lines
                 sb.AppendLine();
@@ -81,7 +106,7 @@ namespace MazeSolver
     }
 
     // Handles the functions related to constructing a new maze.
-    internal static class MazeGenerator
+    static class MazeGenerator
     {
         private static readonly Random rand = new();
 
@@ -107,6 +132,7 @@ namespace MazeSolver
         // TODO: Smarter path generation algorithm
         public static bool CreatePath(ref MazeData maze)
         {
+            int pathCount = 0;
             // Dimensions of maze
             int iSize = maze.Count;
 
@@ -114,11 +140,11 @@ namespace MazeSolver
 
             // Set the currentCell to the start of the maze (0, 0)
             Cell currentCell = maze[0][0];
-            currentCell.val = 'S';
+            currentCell.val = "S";
 
             // Set a random end cell somewhere on the right side
             Cell end = maze[iSize-1][rand.Next(1, iSize)];
-            end.val = 'E';
+            end.val = "E";
 
             // Loop until end has been reached
             while (currentCell != end) 
@@ -131,14 +157,15 @@ namespace MazeSolver
                 { return false; }
 
                 // If any of the unvisitedNeighbors are the end then path has been made
-                if (unvisitedNeighbors.Contains(end)) { return true; }
-                if (unvisitedNeighbors.Count == 0) 
-                { Console.WriteLine("wtf"); }
-                    // Pick a random neighbor and 'move' to it
-                    currentCell = unvisitedNeighbors[rand.Next(0, unvisitedNeighbors.Count)];
+                if (unvisitedNeighbors.Contains(end)) 
+                { return true; }
+                //if (unvisitedNeighbors.Count == 0) 
+                //{ Console.WriteLine("wtf"); }
+                // Pick a random neighbor and 'move' to it
+                currentCell = unvisitedNeighbors[rand.Next(0, unvisitedNeighbors.Count)];
 
                 // Set cell to a path
-                currentCell.val = ' ';
+                currentCell.val = (++pathCount).ToString();
             }
             return true;
         }
@@ -149,10 +176,10 @@ namespace MazeSolver
             List<Cell> unvisitedNeighbors = new List<Cell>();
 
             // Add neighbors to the list if they have not been visited (do not have a val of ' ').
-            if (currentCell.x > 0 && maze[currentCell.x - 1][currentCell.y].val is not ' ' and not 'S') { unvisitedNeighbors.Add(maze[currentCell.x - 1][currentCell.y]); }
-            if (currentCell.y > 0 && maze[currentCell.x][currentCell.y - 1].val is not ' ' and not 'S') { unvisitedNeighbors.Add(maze[currentCell.x][currentCell.y - 1]); }
-            if (currentCell.x < maze.Count - 1 && maze[currentCell.x + 1][currentCell.y].val is not ' ' and not 'S') { unvisitedNeighbors.Add(maze[currentCell.x + 1][currentCell.y]); }
-            if (currentCell.y < maze.Count - 1 && maze[currentCell.x][currentCell.y + 1].val is not ' ' and not 'S') { unvisitedNeighbors.Add(maze[currentCell.x][currentCell.y + 1]); }
+            if (currentCell.x > 0 && maze[currentCell.x - 1][currentCell.y].val is "X" or "E") { unvisitedNeighbors.Add(maze[currentCell.x - 1][currentCell.y]); }
+            if (currentCell.y > 0 && maze[currentCell.x][currentCell.y - 1].val is "X" or "E") { unvisitedNeighbors.Add(maze[currentCell.x][currentCell.y - 1]); }
+            if (currentCell.x < maze.Count - 1 && maze[currentCell.x + 1][currentCell.y].val is "X" or "E") { unvisitedNeighbors.Add(maze[currentCell.x + 1][currentCell.y]); }
+            if (currentCell.y < maze.Count - 1 && maze[currentCell.x][currentCell.y + 1].val is "X" or "E") { unvisitedNeighbors.Add(maze[currentCell.x][currentCell.y + 1]); }
 
             return unvisitedNeighbors;
         }
